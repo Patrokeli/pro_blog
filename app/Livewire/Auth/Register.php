@@ -3,7 +3,6 @@
 namespace App\Livewire\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
@@ -30,10 +29,10 @@ class Register extends Component
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'user', // Default role assignment
+            'role' => 'user',
+            'email_verified_at' => now(), // Mark email as verified immediately
         ]);
 
-        event(new Registered($user));
         Auth::login($user);
         $this->redirect(route('dashboard', absolute: false), navigate: true);
     }

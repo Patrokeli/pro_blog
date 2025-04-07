@@ -13,6 +13,11 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::middleware('auth')->group(function () {
+    Route::get('/posts/create', \App\Livewire\Post\CreatePost::class)->name('posts.create');
+    Route::get('/posts', \App\Livewire\Post\PostList::class)->name('posts.index');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
