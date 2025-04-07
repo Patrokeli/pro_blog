@@ -21,15 +21,60 @@ class PostResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('content')
-                    ->required()
-                    ->columnSpanFull(),
+                Forms\Components\Section::make('Post Information')
+                    ->schema([
+                        Forms\Components\Select::make('user_id')
+                            ->relationship('user', 'name')
+                            ->required(),
+                        Forms\Components\TextInput::make('title')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('content')
+                            ->required()
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(1),
+                
+                Forms\Components\Section::make('Comments')
+                    ->schema([
+                        Forms\Components\Repeater::make('comments')
+                            ->relationship()
+                            ->schema([
+                                Forms\Components\Select::make('user_id')
+                                    ->relationship('user', 'name')
+                                    ->default(auth()->id())
+                                    ->required(),
+                                Forms\Components\Textarea::make('content')
+                                    ->required()
+                                    ->maxLength(1000)
+                                    ->columnSpanFull(),
+                                Forms\Components\DateTimePicker::make('created_at')
+                                    ->label('Posted At')
+                                    ->default(now()),
+                            ])
+                            ->columns(1)
+                            ->addActionLabel('Add Comment')
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
+                
+                Forms\Components\Section::make('Likes')
+                    ->schema([
+                        Forms\Components\Repeater::make('likes')
+                            ->relationship()
+                            ->schema([
+                                Forms\Components\Select::make('user_id')
+                                    ->relationship('user', 'name')
+                                    ->required(),
+                                Forms\Components\DateTimePicker::make('created_at')
+                                    ->label('Liked At')
+                                    ->default(now()),
+                            ])
+                            ->columns(2)
+                            ->addActionLabel('Add Like')
+                    ])
+                    ->collapsible()
+                    ->collapsed()
             ]);
     }
 
@@ -39,9 +84,19 @@ class PostResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('title')
+                    ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->searchable()
+                    ->limit(30),
+                Tables\Columns\TextColumn::make('comments_count')
+                    ->counts('comments')
+                    ->label('Comments')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('likes_count')
+                    ->counts('likes')
+                    ->label('Likes')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -52,7 +107,14 @@ class PostResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('user')
+                    ->relationship('user', 'name'),
+                Tables\Filters\Filter::make('has_comments')
+                    ->label('Has Comments')
+                    ->query(fn ($query) => $query->has('comments')),
+                Tables\Filters\Filter::make('has_likes')
+                    ->label('Has Likes')
+                    ->query(fn ($query) => $query->has('likes')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -62,7 +124,8 @@ class PostResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array
