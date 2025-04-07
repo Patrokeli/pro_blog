@@ -67,7 +67,12 @@ class User extends Authenticatable
         }
         
         return substr($initials, 0, 2);
-    }   
+    }
+    
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
 
     /**
      * Determine if the user has regular user role.
@@ -83,6 +88,11 @@ class User extends Authenticatable
     public function setPasswordAttribute($value): void
     {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 
     /**
