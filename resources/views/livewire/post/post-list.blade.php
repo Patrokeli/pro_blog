@@ -22,6 +22,23 @@
             <!-- Post Content -->
             <p class="mt-4 text-gray-700 leading-relaxed">{{ $post->content }}</p>
 
+            <!-- Image Upload -->
+            @if($post->image_url)
+                <div class="mt-4">
+                    <img src="{{ $post->image_url }}" alt="Post image" class="max-w-full rounded-lg">
+                </div>
+            @endif
+
+            <!-- Video Upload -->
+            @if($post->video_url)
+                <div class="mt-4">
+                    <video controls class="max-w-full rounded-lg">
+                        <source src="{{ $post->video_url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            @endif
+
             <!-- Action Buttons -->
             <div class="mt-6 flex justify-between items-center">
                 <div class="flex items-center space-x-6">

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PostResource\Pages;
-use App\Filament\Resources\PostResource\RelationManagers;
 use App\Models\Post;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -20,9 +19,9 @@ class PostResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
+            ->schema([ 
                 Forms\Components\Section::make('Post Information')
-                    ->schema([
+                    ->schema([ 
                         Forms\Components\Select::make('user_id')
                             ->relationship('user', 'name')
                             ->required(),
@@ -32,14 +31,30 @@ class PostResource extends Resource
                         Forms\Components\Textarea::make('content')
                             ->required()
                             ->columnSpanFull(),
+
+                        // Image Upload
+                        Forms\Components\FileUpload::make('image_path')
+                            ->label('Image')
+                            ->image()  // Specify that this is an image upload
+                            ->directory('posts/images')  // Store the image in the 'posts/images' directory
+                            ->visibility('public')  // Make the image publicly accessible
+                            ->columnSpanFull(),
+
+                        // Video Upload
+                        Forms\Components\FileUpload::make('video_path')
+                            ->label('Video')
+                            ->directory('posts/videos')  // Store the video in the 'posts/videos' directory
+                            ->visibility('public')  // Make the video publicly accessible
+                            ->acceptedFileTypes(['video/mp4', 'video/quicktime', 'video/x-msvideo'])  // Accepted video formats
+                            ->columnSpanFull(),
                     ])
                     ->columns(1),
                 
                 Forms\Components\Section::make('Comments')
-                    ->schema([
+                    ->schema([ 
                         Forms\Components\Repeater::make('comments')
                             ->relationship()
-                            ->schema([
+                            ->schema([ 
                                 Forms\Components\Select::make('user_id')
                                     ->relationship('user', 'name')
                                     ->default(auth()->id())
@@ -59,10 +74,10 @@ class PostResource extends Resource
                     ->collapsed(),
                 
                 Forms\Components\Section::make('Likes')
-                    ->schema([
+                    ->schema([ 
                         Forms\Components\Repeater::make('likes')
                             ->relationship()
-                            ->schema([
+                            ->schema([ 
                                 Forms\Components\Select::make('user_id')
                                     ->relationship('user', 'name')
                                     ->required(),
@@ -81,7 +96,20 @@ class PostResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
+            ->columns([ 
+                Tables\Columns\ImageColumn::make('image_path')
+                    ->label('Media')
+                    ->size(40)
+                    ->circular()
+                    ->defaultImageUrl(function ($record) {
+                        // Show a video icon if there's a video but no image
+                        return $record->video_path ? url('/images/video-icon.png') : null;
+                    })
+                    ->extraImgAttributes([ 
+                        'class' => 'cursor-pointer',
+                        'x-on:click' => 'window.dispatchEvent(new CustomEvent("open-media-modal", { detail: $el.src }))'
+                    ]),
+
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
                     ->sortable()
@@ -106,7 +134,7 @@ class PostResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
+            ->filters([ 
                 Tables\Filters\SelectFilter::make('user')
                     ->relationship('user', 'name'),
                 Tables\Filters\Filter::make('has_comments')
@@ -116,14 +144,14 @@ class PostResource extends Resource
                     ->label('Has Likes')
                     ->query(fn ($query) => $query->has('likes')),
             ])
-            ->actions([
+            ->actions([ 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->bulkActions([ 
+                Tables\Actions\BulkActionGroup::make([ 
                     Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                ]), 
             ])
             ->defaultSort('created_at', 'desc');
     }
@@ -141,6 +169,7 @@ class PostResource extends Resource
             'index' => Pages\ListPosts::route('/'),
             'create' => Pages\CreatePost::route('/create'),
             'edit' => Pages\EditPost::route('/{record}/edit'),
+            // Removed the media-modal route
         ];
     }
 }

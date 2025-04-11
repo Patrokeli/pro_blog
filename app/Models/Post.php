@@ -13,8 +13,20 @@ class Post extends Model
     protected $fillable = [
         'user_id',
         'title',
-        'content'
+        'content',
+        'image_path',
+        'video_path',
     ];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image_path ? asset('storage/'.$this->image_path) : null;
+    }
+
+    public function getVideoUrlAttribute()
+    {
+        return $this->video_path ? asset('storage/'.$this->video_path) : null;
+    }
 
     public function user(): BelongsTo
     {

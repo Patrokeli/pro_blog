@@ -38,6 +38,33 @@
             @enderror
         </div>
 
+        <!-- Image Upload -->
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Post Image</label>
+            <input type="file" wire:model="image" class="w-full">
+            @error('image') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            @if($image)
+                <div class="mt-2">
+                    <img src="{{ $image->temporaryUrl() }}" class="max-h-40">
+                </div>
+            @endif
+        </div>
+
+        <!-- Video Upload -->
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Post Video</label>
+            <input type="file" wire:model="video" class="w-full">
+            @error('video') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            @if($video)
+                <div class="mt-2">
+                    <video controls class="max-h-40">
+                        <source src="{{ $video->temporaryUrl() }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            @endif
+        </div>
+
         <!-- Submit Button -->
         <div>
             <button
