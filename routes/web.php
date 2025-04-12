@@ -15,11 +15,11 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::get('/profile/{user?}', \App\Livewire\Profile\Show::class)
+    Route::get('/profile', \App\Livewire\Profile\Show::class)
     ->middleware('auth')
     ->name('profile');
 
-
+    
 
 Route::middleware('auth')->group(function () {
     Route::get('/posts/create', \App\Livewire\Post\CreatePost::class)->name('posts.create');
@@ -54,4 +54,3 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
-  

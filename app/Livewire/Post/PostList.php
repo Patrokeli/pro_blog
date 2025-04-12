@@ -31,6 +31,8 @@ class PostList extends Component
         return preg_replace("/(".$searchTerm.")/i", "<span class=\"bg-yellow-200\">$1</span>", $text);
     }
 
+    
+
     public function render()
     {
         $posts = Post::query()
