@@ -1,7 +1,7 @@
 <div class="max-w-3xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
     <!-- Search Bar and Header -->
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-white-900">Latest Posts</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Latest Posts</h1>
         <div class="flex items-center space-x-4">
             <div class="relative">
                 <input wire:model.live.debounce.300ms="search" 
@@ -14,12 +14,13 @@
                     </svg>
                 </div>
             </div>
-            <a href="{{ route('dashboard') }}" class="text-white-600 hover:text-gray-900 text-sm font-medium">
+            <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900 text-sm font-medium">
                 Home
             </a>
         </div>
     </div>
 
+    <!-- Posts List -->
     @if($posts->isEmpty())
         <div class="bg-white rounded-lg shadow-sm p-6 text-center">
             <p class="text-gray-600">No posts found matching your search.</p>
@@ -27,7 +28,7 @@
     @else
         @foreach($posts as $post)
             <article class="bg-white rounded-lg shadow-sm overflow-hidden">
-                <!-- Post Header -->
+                <!-- Post Header with Author Info and Follow Button -->
                 <div class="p-4 border-b border-gray-100">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
@@ -35,7 +36,7 @@
                                  alt="{{ $post->user->name }}"
                                  class="h-10 w-10 rounded-full object-cover">
                             <div>
-                                <h3 class="font-medium text-gray-900">{!! $highlight($post->user->name) !!}</h3>
+                                <h3 class="font-medium text-gray-900">{!! highlight($post->user->name) !!}</h3>
                                 <div class="flex items-center space-x-2 text-sm text-gray-500">
                                     <time datetime="{{ $post->created_at->format('Y-m-d') }}">
                                         {{ $post->created_at->format('M j, Y') }}
@@ -51,9 +52,9 @@
 
                 <!-- Post Content -->
                 <div class="p-4">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-2">{!! $highlight($post->title) !!}</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">{!! highlight($post->title) !!}</h2>
                     <p class="text-gray-600 line-clamp-3 mb-4">
-                        {!! $highlight(Str::limit(strip_tags($post->content), 150)) !!}
+                        {!! highlight(Str::limit(strip_tags($post->content), 150)) !!}
                     </p>
 
                     @if($post->image_url || $post->video_url)

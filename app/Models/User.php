@@ -20,7 +20,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // Added role to mass assignable fields
+        'role',
+        'bio', 
+        'profile_photo_path', 
+        'cover_photo_path' 
     ];
 
     /**
@@ -40,9 +43,71 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        // Consider adding if you need boolean checks:
-        // 'is_admin' => 'boolean',
     ];
+
+    /**
+     * Get the user's profile photo URL.
+     *
+     * @return string|null
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo_path 
+            ? asset('storage/' . $this->profile_photo_path)
+            : null;
+    }
+
+    /**
+     * Get the user's cover photo URL.
+     *
+     * @return string|null
+     */
+    public function getCoverPhotoUrlAttribute()
+    {
+        return $this->cover_photo_path 
+            ? asset('storage/' . $this->cover_photo_path)
+            : null;
+    }
+
+    /**
+     * Get the user's posts.
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Get the users that this user is following.
+     */
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id');
+    }
+
+    /**
+     * Get the users that follow this user.
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id');
+    }
+
+    /**
+     * Get the user's likes.
+     */
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    /**
+     * Get the user's comments.
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 
     /**
      * Determine if the user has admin role.
@@ -52,9 +117,17 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
- /**
- * Get the user's initials for avatar display.
- */
+    /**
+     * Determine if the user has regular user role.
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Get the user's initials for avatar display.
+     */
     public function initials(): string
     {
         $nameParts = explode(' ', trim($this->name));
@@ -68,35 +141,28 @@ class User extends Authenticatable
         
         return substr($initials, 0, 2);
     }
-    
-    public function likes()
+
+    /**
+     * Get the count of followers.
+     */
+    public function getFollowersCountAttribute()
     {
-        return $this->hasMany(Like::class);
+        return $this->followers()->count();
     }
 
     /**
-     * Determine if the user has regular user role.
+     * Get the count of users being followed.
      */
-    public function isUser(): bool
+    public function getFollowingCountAttribute()
     {
-        return $this->role === 'user';
+        return $this->following()->count();
     }
 
     /**
-     * Set the user's password (hashed automatically).
+     * Get the count of posts.
      */
-    
-
-    public function comments()
+    public function getPostsCountAttribute()
     {
-        return $this->hasMany(Comment::class);
-    }
-
-    /**
-     * Relationship with posts.
-     */
-    public function posts()
-    {
-        return $this->hasMany(Post::class);
+        return $this->posts()->count();
     }
 }

@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <!-- Stats Section (moved up) -->
+        <!-- Stats Section -->
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
             <!-- Total Posts -->
             <div class="rounded-xl bg-white p-5 shadow-sm dark:bg-neutral-800">
@@ -59,26 +59,44 @@
             </div>
         </div>
 
-        <!-- Recent Posts Section -->
+        <!-- Recent Posts Section - Updated UI Only -->
         <div class="rounded-xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:bg-neutral-800">
-            <h2 class="mb-5 text-2xl font-semibold text-gray-900 dark:text-white">
+            <h2 class="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
                 Recent Posts
             </h2>
 
             @if(auth()->user()->posts()->exists())
-                <div class="space-y-4">
+                <div class="space-y-8">
                     @foreach(auth()->user()->posts()->latest()->take(3)->get() as $post)
-                        <div class="rounded-lg border border-gray-200 bg-white p-4 transition hover:border-blue-400 dark:border-gray-700 dark:bg-neutral-900">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ $post->title }}</h3>
-                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                                {{ Str::limit($post->content, 150) }}
+                        <div class="border-b border-gray-200 pb-8 last:border-0 dark:border-gray-700">
+                            <div class="flex items-center gap-x-4 text-xs">
+                                <time datetime="{{ $post->created_at->format('Y-m-d') }}" class="text-gray-500 dark:text-gray-400">
+                                    {{ $post->created_at->format('M j, Y') }}
+                                </time>
+                                <span class="relative z-10 rounded-full bg-gray-100 px-3 py-1.5 font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                    {{ $post->category ?? 'General' }}
+                                </span>
+                            </div>
+                            <h3 class="mt-3 text-lg font-semibold leading-6 text-gray-900 dark:text-white">
+                                {{ $post->title }}
+                            </h3>
+                            <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                {{ Str::limit(strip_tags($post->content), 150) }}
                             </p>
-                            <div class="mt-3 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                                <span>Posted {{ $post->created_at->diffForHumans() }}</span>
-                                <a href="{{ route('posts.index') }}"
-                                   class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                                    View all →
-                                </a>
+                            <div class="mt-6 flex items-center">
+                                <div class="flex items-center gap-x-4">
+                                    <img src="{{ $post->user->profile_photo_url }}" alt="{{ $post->user->name }}" class="h-10 w-10 rounded-full bg-gray-50 object-cover">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ $post->user->name }}</h4>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $post->user->role }}</p>
+                                    </div>
+                                </div>
+                                <div class="ml-auto">
+                                    <a href="{{ route('posts.index') }}"
+                                       class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                        View all →
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     @endforeach

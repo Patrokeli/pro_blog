@@ -15,8 +15,12 @@ class AdminMiddleware
         /** @var User|null $user */
         $user = Auth::user();
         
-        if (!$user || !$user->isAdmin()) {
-            abort(403, 'Unauthorized action.');
+        if (!$user) {
+            return redirect()->route('filament.admin.auth.login');
+        }
+
+        if (!$user->isAdmin()) {
+            return redirect('/'); // or wherever you want non-admins to go
         }
 
         return $next($request);
